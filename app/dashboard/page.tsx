@@ -7,10 +7,10 @@ const categories = [
     {id: '3', name: 'Transportation'},
 ]
 
-const page = () => {
+const page: React.FC = () => {
   return (
     <div className='container mx-auto p-4'>
-        <TransactionInput title="Add Transaction" categories={categories} />
+        <TransactionInput title="Add Transaction" categories={categories}/>
     </div>
   )
 }
