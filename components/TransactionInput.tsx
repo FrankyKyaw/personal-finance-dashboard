@@ -47,7 +47,7 @@ const TransactionInput: React.FC<TransactionCardProps> = ({
     console.log(transaction);
   };
   return (
-    <div className="w-full max-w-md bg-white shadow-sm overflow-hidden rounded-lg border">
+    <div className="w-full max-w-xl bg-white shadow-sm overflow-hidden rounded-lg border">
       <div className="px-6 py-4">
         <h2 className="text-center text-xl font-medium mb-4">{title}</h2>
         <form onSubmit={handleSubmit}>

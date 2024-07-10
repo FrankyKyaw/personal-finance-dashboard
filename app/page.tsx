@@ -10,7 +10,7 @@ export default function Home() {
       <p className="text-lg text-center">
         A simple dashboard to track your personal finance
       </p>
-      <button onClick={() => signIn("google")} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+      <button onClick={() => signIn("google", {callbackUrl: "/dashboard"})} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
         Sign In with Google
       </button>
       </div>
