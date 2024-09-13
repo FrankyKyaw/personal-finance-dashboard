@@ -1,9 +1,15 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import TransactionInput from "@/components/TransactionInput";
 
 import { signIn, signOut, useSession } from "next-auth/react";
 import TransactionList from "@/components/TransactionList";
+import DashboardNavBar from "@/components/DashboardNavBar";
+import DashboardLayout from "@/components/DashboardLayout";
+import PlaidLinkButton from "@/components/PlaidLinkButton";
+import TestTransactionList from "@/components/TestTransactionList";
+import { useTransactions } from "@/hooks/useTransactions";
+
 const categories = [
   { id: "1", name: "Food" },
   { id: "2", name: "Rent" },
@@ -12,53 +18,75 @@ const categories = [
 
 const page: React.FC = () => {
   const { data: session, status } = useSession();
+  const [accessToken, setAccessToken] = React.useState<string | null>(null);
+  const [accessTokenLoading, setAccessTokenLoading] =
+    React.useState<boolean>(true);
 
-  if (status === "loading") {
+  const {
+    data: transactions,
+    isLoading,
+    isError,
+  } = useTransactions(accessToken || "");
+
+  const handleSuccess = (accessToken: string) => {
+    setAccessToken(accessToken);
+  };
+
+  useEffect(() => {
+    const getAccessToken = async () => {
+      setAccessTokenLoading(true);
+      try {
+        const response = await fetch("/api/plaid/fetchAccessToken", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: session?.user?.id }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.accessToken) {
+          setAccessToken(data.accessToken);
+        }
+      } catch (error) {
+        console.error("Failed to fetch access token", error);
+      } finally {
+        setAccessTokenLoading(false);
+      }
+    };
+    getAccessToken();
+  }, [session]);
+
+  if (status === "loading" || accessTokenLoading) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-gray-100">
+      <main className="flex h-screen flex-col items-center justify-center p-6 bg-gray-100">
         <div className="text-2xl font-bold text-gray-700">Loading...</div>
       </main>
     );
   }
   return (
-    <main className="flex min-h-screen flex-col items-center p-6 bg-gray-100">
-      {session ? (
-        <div className="container mx-auto p-10 bg-white">
-          <div className="flex flex-col items-center mb-6 p-6">
-            {/* <img src={session.user?.image as string} className="rounded-full h-20 w-20 mb-4"></img> */}
-            <h1 className="text-3xl font-bold text-gray-700 mb-4">
-              Welcome back, {session.user?.name}
-            </h1>
-            <p className="text-gray-600">Manage your transactions below.</p>
-            <TransactionList />
-            <TransactionInput title="Add Transaction" categories={categories} />
-          </div>
-
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {
-              signOut();
-            }}
-          >
-            Sign Out
-          </button>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          <h1 className="text-4xl font-bold text-gray-700 mb-8">
-            You are not signed in.
+      <DashboardLayout>
+        <div className="flex flex-col items-center h-screen mb-6 p-8 ml-10 w-full">
+          <h1 className="text-3xl font-bold text-gray-700 mb-4 w-full">
+            Welcome back, {session?.user?.name}
           </h1>
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {
-              signIn("google", { callbackUrl: "/dashboard" });
-            }}
-          >
-            Sign In
-          </button>
+          <PlaidLinkButton onSuccess={handleSuccess} />
+
+          {accessToken && (
+            <>
+              {isLoading && <div>Loading transactions...</div>}
+              {isError && <div>Error loading transactions</div>}
+              {transactions && (
+                <TestTransactionList transactions={transactions} />
+              )}
+            </>
+          )}
         </div>
-      )}
-    </main>
+      </DashboardLayout>
   );
 };
 

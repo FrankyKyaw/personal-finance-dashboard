@@ -27,6 +27,9 @@ model Account {
   id_token           String?  @db.Text
   session_state      String?
 
+  plaid_access_token String? @db.Text
+  plaid_item_id      String? 
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])

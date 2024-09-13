@@ -44,7 +44,6 @@ const TransactionList: React.FC = () => {
   return (
     <div className="w-full max-w-4xl bg-white shadow-sm overflow-hidden rounded-lg border mb-10">
       <div className="px-6 py-4">
-        <h1 className="text-xl font-medium">Transaction List</h1>
         <table className="min-w-full divide-y">
           <thead className="">
             <tr>
