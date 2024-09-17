@@ -18,32 +18,7 @@ const TestTransactionList: React.FC<{ transactions: Transaction[] }> = ({
 
   const [filteredTransactions, setFilteredTransactions] =
     useState<Transaction[]>(transactions);
-  // const fetchTransactions = async (start: string, end: string) => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await fetch("/api/plaid/transactions", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ accessToken, startDate: start, endDate: end }),
-  //     });
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       setTransactions(data);
-  //     } else {
-  //       console.error("Failed to fetch transactions");
-  //     }
-  //   } catch (error) {
-  //     console.error("Failed to fetch transactions", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
-  // useEffect(() => {
-  //   fetchTransactions("", "");
-  // }, [accessToken]);
 
   const handleApplyFilter = () => {
     const filtered = transactions.filter((transaction) => {
@@ -52,6 +27,7 @@ const TestTransactionList: React.FC<{ transactions: Transaction[] }> = ({
       const end = endDate ? new Date(endDate).getTime() : Infinity;
       return transactionDate >= start && transactionDate <= end;
     });
+    console.log('adsf')
     setFilteredTransactions(filtered);
   };
   
@@ -100,7 +76,7 @@ const TestTransactionList: React.FC<{ transactions: Transaction[] }> = ({
             </tr>
           </thead>
           <tbody className="divide-y">
-            {transactions.map((transaction) => (
+            {filteredTransactions.map((transaction) => (
               <tr key={transaction.transaction_id}>
                 <td className="text-sm p-3 whitespace-nowrap">
                   <div>{new Date(transaction.date).toLocaleDateString()}</div>

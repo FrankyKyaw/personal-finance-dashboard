@@ -5,12 +5,12 @@ import { CountryCode, Products } from "plaid";
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { userId } = body;
+        const { userId, accessToken } = body;
 
         const PLAID_PRODUCTS: Products[] = (process.env.PLAID_PRODUCTS || 'transactions').split(',') as Products[];
         const PLAID_COUNTRY_CODES: CountryCode[] = (process.env.PLAID_COUNTRY_CODES || 'US').split(',') as CountryCode[];
 
-        const response = await plaidClient.linkTokenCreate({
+        const configs: any = {
             user: {
                 client_user_id: userId.toString(),
             },
@@ -18,7 +18,11 @@ export async function POST(req: NextRequest) {
             products: PLAID_PRODUCTS,
             country_codes: PLAID_COUNTRY_CODES,
             language: 'en',
-        });
+        };
+        if (accessToken) {
+            configs.access_token = accessToken;   
+        }
+        const response = await plaidClient.linkTokenCreate(configs);
         return NextResponse.json(response.data);
     } catch (error) {
         console.error('Error creating link token:', error);

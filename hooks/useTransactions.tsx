@@ -8,15 +8,15 @@ const fetchTransactions = async (accessToken: string) => {
         },
         body: JSON.stringify({ accessToken }),
     })
-    
     if (!response.ok) {
-        throw new Error('Failed to fetch transactions');
+        const errorData = await response.json();
+        throw new Error(JSON.stringify(errorData));
     }
     return response.json();
 }
 
 export const useTransactions = (accessToken: string) => {
-    return useQuery(['transactions', accessToken], () => fetchTransactions(accessToken), {
+    return useQuery<any, Error>(['transactions', accessToken], () => fetchTransactions(accessToken), {
         enabled: !!accessToken,
         staleTime: 1000 * 60 * 5, // 5 minutes
         cacheTime: 1000 * 60 * 60, // 30 minutes

@@ -4,28 +4,38 @@ import { usePlaidLink } from "react-plaid-link";
 
 interface PlaidLinkButtonProps {
   onSuccess: (accessToken: string) => void;
+  accessToken?: string | null;
 }
 
-const PlaidLinkButton: React.FC<PlaidLinkButtonProps> = ({ onSuccess }) => {
+const PlaidLinkButton: React.FC<PlaidLinkButtonProps> = ({ onSuccess, accessToken: existingAccessToken }) => {
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const { data: session, status } = useSession();
 
   const fetchLinkToken = useCallback(async () => {
+    if (!session?.user?.id) {
+      console.error("User ID is not available");
+      return;
+    }
+
     const response = await fetch("/api/plaid/createLinkToken", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userId: session?.user?.id }),
+      body: JSON.stringify({ 
+        userId: session?.user?.id,
+        accessToken: existingAccessToken, }),
     });
 
     const data = await response.json();
     console.log("response", data.link_token);
     setLinkToken(data.link_token);
-  }, []);
+  }, [session?.user?.id, existingAccessToken]);
 
   useEffect(() => {
-    fetchLinkToken();
+    if (linkToken === null) {
+      fetchLinkToken();
+    }
   }, [fetchLinkToken]);
 
   const handleOnSuccess = async (public_token: string) => {
@@ -38,8 +48,6 @@ const PlaidLinkButton: React.FC<PlaidLinkButtonProps> = ({ onSuccess }) => {
         body: JSON.stringify({ public_token }),
       });
       const exchangeData = await response.json();
-
-      console.log("Access token:", exchangeData.access_token);
 
       const saveResponse = await fetch("/api/plaid/saveAccessToken", {
         method: "POST",
@@ -70,13 +78,17 @@ const PlaidLinkButton: React.FC<PlaidLinkButtonProps> = ({ onSuccess }) => {
   };
   const { open, ready } = usePlaidLink(config);
 
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+  
   return (
     <button
       className="border rounded-xl border-black p-2 hover:bg-gray-200 shadow-sm"
       onClick={() => open()}
       disabled={!ready}
     >
-      Connect a bank account
+      {existingAccessToken ? "Update Account Connection" : "Connect a bank account"}
     </button>
   );
 };

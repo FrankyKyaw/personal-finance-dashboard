@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { accessToken } = await req.json();
-    
+
     if (!accessToken) {
       return NextResponse.json(
         { error: "Access token is required!" },
@@ -20,7 +20,16 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(response.data.transactions);
-  } catch {
+  } catch (error: any) {
+    console.error("Error in /api/plaid/transactions:", error);
+
+    if (error.response?.data?.error_code === "ITEM_LOGIN_REQUIRED") {
+      return NextResponse.json(
+        { error: "ITEM_LOGIN_REQUIRED", message: error.response.data.error_message },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: "Something went wrong!" },
       { status: 500 }

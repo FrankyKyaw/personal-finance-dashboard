@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import TransactionInput from "@/components/TransactionInput";
 
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -18,18 +18,19 @@ const categories = [
 
 const page: React.FC = () => {
   const { data: session, status } = useSession();
-  const [accessToken, setAccessToken] = React.useState<string | null>(null);
-  const [accessTokenLoading, setAccessTokenLoading] =
-    React.useState<boolean>(true);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [accessTokenLoading, setAccessTokenLoading] = useState<boolean>(true);
+  const [needsReauthentication, setNeedsReauthentication] = useState<boolean>(false);
 
   const {
     data: transactions,
     isLoading,
-    isError,
+    error,
   } = useTransactions(accessToken || "");
 
   const handleSuccess = (accessToken: string) => {
     setAccessToken(accessToken);
+    setNeedsReauthentication(false);
   };
 
   useEffect(() => {
@@ -59,8 +60,20 @@ const page: React.FC = () => {
       }
     };
     getAccessToken();
-  }, [session]);
+  }, [status, session?.user?.id, accessToken]);
 
+  useEffect(() => {
+    if (error) {
+      try {
+        const errorData = JSON.parse(error.message);
+        if (errorData.error === "ITEM_LOGIN_REQUIRED") {
+          setNeedsReauthentication(true);
+        }
+      } catch (parseError) {
+        console.error("Error parsing error message", parseError);
+      }
+    }
+  }, [error])
   if (status === "loading" || accessTokenLoading) {
     return (
       <main className="flex h-screen flex-col items-center justify-center p-6 bg-gray-100">
@@ -74,17 +87,25 @@ const page: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-700 mb-4 w-full">
             Welcome back, {session?.user?.name}
           </h1>
-          <PlaidLinkButton onSuccess={handleSuccess} />
-
-          {accessToken && (
-            <>
-              {isLoading && <div>Loading transactions...</div>}
-              {isError && <div>Error loading transactions</div>}
-              {transactions && (
-                <TestTransactionList transactions={transactions} />
-              )}
-            </>
-          )}
+          {needsReauthentication ? (
+          <>
+            <p>Your account needs to be re-authenticated.</p>
+            <PlaidLinkButton onSuccess={handleSuccess} accessToken={accessToken} />
+          </>
+        ) : (
+          <>
+            {!accessToken ? (
+              <PlaidLinkButton onSuccess={handleSuccess} />
+            ) : (
+              <>
+                {isLoading && <div>Loading transactions...</div>}
+                {transactions && (
+                  <TestTransactionList transactions={transactions} />
+                )}
+              </>
+            )}
+          </>
+        )}
         </div>
       </DashboardLayout>
   );
