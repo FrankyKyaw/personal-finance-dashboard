@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { Transaction } from "@/types/transaction";
 
-interface Transaction {
-  transaction_id: string;
-  date: string;
-  name: string;
-  amount: number;
-  category: string[];
-  merchant_name: string;
-}
 
 const TestTransactionList: React.FC<{ transactions: Transaction[] }> = ({
   transactions,
@@ -27,7 +20,6 @@ const TestTransactionList: React.FC<{ transactions: Transaction[] }> = ({
       const end = endDate ? new Date(endDate).getTime() : Infinity;
       return transactionDate >= start && transactionDate <= end;
     });
-    console.log('adsf')
     setFilteredTransactions(filtered);
   };
   
@@ -35,8 +27,7 @@ const TestTransactionList: React.FC<{ transactions: Transaction[] }> = ({
     return <p>Loading transactions...</p>;
   }
   return (
-    <div className="w-full max-w-4xl h-3/4 px-6 py-4 bg-white mb-10 flex flex-col">
-      <h2 className="text-2xl font-bold mb-4 text-center">Transactions</h2>
+    <div className="w-full max-w-4xl px-6 py-4 bg-white mb-10 flex flex-col">
       <div className="mb-4 flex justify-center">
         <input
           type="date"
@@ -67,9 +58,9 @@ const TestTransactionList: React.FC<{ transactions: Transaction[] }> = ({
               <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Merchant
               </th>
-              <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Category
-              </th>
+              </th> */}
               <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Amount
               </th>
@@ -84,9 +75,9 @@ const TestTransactionList: React.FC<{ transactions: Transaction[] }> = ({
                 <td className="text-sm p-3 whitespace-nowrap">
                   <div>{transaction.merchant_name}</div>
                 </td>
-                <td className="text-sm p-3 whitespace-nowrap">
+                {/* <td className="text-sm p-3 whitespace-nowrap">
                   <div>{transaction.category[0]}</div>
-                </td>
+                </td> */}
                 <td className="text-sm p-3 whitespace-nowrap">
                   <div
                     className={` font-semibold ${

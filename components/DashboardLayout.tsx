@@ -1,6 +1,7 @@
 import React from "react";
 import { useSession, signIn } from "next-auth/react";
 import DashboardNavBar from "./DashboardNavBar";
+import SideNavBar from "./SideNavBar";
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: session, status } = useSession();
@@ -31,9 +32,11 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-100 w-full">
-      <DashboardNavBar />
-      <div className="w-full p-5 bg-white">
-        {children}
+      <DashboardNavBar/>
+      <div className="flex w-full ">
+        <div className="w-full p-5 bg-gray-50">
+          {children}
+        </div>
       </div>
     </main>
   );

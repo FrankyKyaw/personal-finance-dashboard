@@ -16,6 +16,7 @@ const PlaidLinkButton: React.FC<PlaidLinkButtonProps> = ({ onSuccess, accessToke
       console.error("User ID is not available");
       return;
     }
+    
 
     const response = await fetch("/api/plaid/createLinkToken", {
       method: "POST",
@@ -81,7 +82,7 @@ const PlaidLinkButton: React.FC<PlaidLinkButtonProps> = ({ onSuccess, accessToke
   if (status === "loading") {
     return <div>Loading...</div>;
   }
-  
+
   return (
     <button
       className="border rounded-xl border-black p-2 hover:bg-gray-200 shadow-sm"

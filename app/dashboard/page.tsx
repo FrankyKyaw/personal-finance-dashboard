@@ -9,6 +9,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import PlaidLinkButton from "@/components/PlaidLinkButton";
 import TestTransactionList from "@/components/TestTransactionList";
 import { useTransactions } from "@/hooks/useTransactions";
+import MonthlyChart from "@/components/Dashboard/MonthlyChart";
+import SideNavBar from "@/components/SideNavBar";
 
 const categories = [
   { id: "1", name: "Food" },
@@ -20,7 +22,8 @@ const page: React.FC = () => {
   const { data: session, status } = useSession();
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [accessTokenLoading, setAccessTokenLoading] = useState<boolean>(true);
-  const [needsReauthentication, setNeedsReauthentication] = useState<boolean>(false);
+  const [needsReauthentication, setNeedsReauthentication] =
+    useState<boolean>(false);
 
   const {
     data: transactions,
@@ -73,41 +76,75 @@ const page: React.FC = () => {
         console.error("Error parsing error message", parseError);
       }
     }
-  }, [error])
+  }, [error]);
   if (status === "loading" || accessTokenLoading) {
     return (
-      <main className="flex h-screen flex-col items-center justify-center p-6 bg-gray-100">
-        <div className="text-2xl font-bold text-gray-700">Loading...</div>
-      </main>
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
     );
   }
   return (
-      <DashboardLayout>
-        <div className="flex flex-col items-center h-screen mb-6 p-8 ml-10 w-full">
-          <h1 className="text-3xl font-bold text-gray-700 mb-4 w-full">
-            Welcome back, {session?.user?.name}
-          </h1>
-          {needsReauthentication ? (
-          <>
-            <p>Your account needs to be re-authenticated.</p>
-            <PlaidLinkButton onSuccess={handleSuccess} accessToken={accessToken} />
-          </>
-        ) : (
-          <>
-            {!accessToken ? (
-              <PlaidLinkButton onSuccess={handleSuccess} />
+    <DashboardLayout>
+      <div className="flex h-screen bg-gray-50">
+        <SideNavBar/>
+        <div className="flex-1 overflow-hidden">
+          <div className="px-4 h-full overflow-y-auto">
+            <div className="ml-4 mb-4">
+              <h1 className="text-4xl font-extrabold text-gray-800 mb-2">
+                Welcome back, {session?.user?.name}
+              </h1>
+              <p className="text-lg text-gray-600">
+                Here's a quick overview of your financial activity.
+              </p>
+            </div>
+            
+            {needsReauthentication ? (
+              <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto">
+                <p className="text-red-500 text-center font-semibold mb-4">
+                  Your account needs to be re-authenticated.
+                </p>
+                <PlaidLinkButton
+                  onSuccess={handleSuccess}
+                  accessToken={accessToken}
+                />
+              </div>
+            ) : !accessToken ? (
+              <div className="flex justify-center">
+                <PlaidLinkButton onSuccess={handleSuccess} />
+              </div>
             ) : (
               <>
-                {isLoading && <div>Loading transactions...</div>}
-                {transactions && (
-                  <TestTransactionList transactions={transactions} />
-                )}
+                {isLoading ? (
+                  <div className="flex justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+                  </div>
+                ) : transactions ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                      <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                        Monthly Finance Overview
+                      </h2>
+                      <div className="h-80 items-center justify-center">
+                        <MonthlyChart transactions={transactions} />
+                      </div>
+                    </div>
+                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                      <h2 className="text-2xl font-bold text-gray-800 ">
+                        Recent Transactions
+                      </h2>
+                      <div className="h-80 overflow-y-auto pr-2">
+                        <TestTransactionList transactions={transactions} />
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
               </>
             )}
-          </>
-        )}
+          </div>
         </div>
-      </DashboardLayout>
+      </div>
+    </DashboardLayout>
   );
 };
 
