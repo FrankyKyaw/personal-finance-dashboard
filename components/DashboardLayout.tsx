@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import { useSession, signIn } from "next-auth/react";
 import DashboardNavBar from "./DashboardNavBar";
@@ -31,10 +32,11 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-gray-100 w-full">
+    <main className="flex min-h-screen flex-col bg-gray-100 w-full">
       <DashboardNavBar/>
-      <div className="flex w-full ">
-        <div className="w-full p-5 bg-gray-50">
+      <div className="flex flex-1 ">
+        <SideNavBar/>
+        <div className="flex-1 p-5 bg-gray-50 overflow-y-auto">
           {children}
         </div>
       </div>

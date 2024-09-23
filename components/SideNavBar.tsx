@@ -3,8 +3,8 @@ import Link from "next/link";
 
 const SideNavBar: React.FC = () => {
   return (
-    <nav className="h-2/3 bg-white w-64 p-5 border-r shadow-lg">
-      <div className="flex flex-col pt-10 space-y-6">
+    <nav className="bg-white w-64 p-6 border-r shadow-lg">
+      <div className="flex flex-col px-6 py-8 space-y-6">
         <Link href="/dashboard" className="text-gray-700 hover:text-blue-500">
           Dashboard
         </Link>

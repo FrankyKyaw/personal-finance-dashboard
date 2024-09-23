@@ -11,6 +11,7 @@ import TestTransactionList from "@/components/TestTransactionList";
 import { useTransactions } from "@/hooks/useTransactions";
 import MonthlyChart from "@/components/Dashboard/MonthlyChart";
 import SideNavBar from "@/components/SideNavBar";
+import RecentTransactionList from "@/components/RecentTransactionList";
 
 const categories = [
   { id: "1", name: "Food" },
@@ -85,66 +86,58 @@ const page: React.FC = () => {
     );
   }
   return (
-    <DashboardLayout>
-      <div className="flex h-screen bg-gray-50">
-        <SideNavBar/>
-        <div className="flex-1 overflow-hidden">
-          <div className="px-4 h-full overflow-y-auto">
-            <div className="ml-4 mb-4">
-              <h1 className="text-4xl font-extrabold text-gray-800 mb-2">
-                Welcome back, {session?.user?.name}
-              </h1>
-              <p className="text-lg text-gray-600">
-                Here's a quick overview of your financial activity.
-              </p>
-            </div>
-            
-            {needsReauthentication ? (
-              <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto">
-                <p className="text-red-500 text-center font-semibold mb-4">
-                  Your account needs to be re-authenticated.
-                </p>
-                <PlaidLinkButton
-                  onSuccess={handleSuccess}
-                  accessToken={accessToken}
-                />
-              </div>
-            ) : !accessToken ? (
-              <div className="flex justify-center">
-                <PlaidLinkButton onSuccess={handleSuccess} />
-              </div>
-            ) : (
-              <>
-                {isLoading ? (
-                  <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
-                  </div>
-                ) : transactions ? (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                      <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                        Monthly Finance Overview
-                      </h2>
-                      <div className="h-80 items-center justify-center">
-                        <MonthlyChart transactions={transactions} />
-                      </div>
-                    </div>
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                      <h2 className="text-2xl font-bold text-gray-800 ">
-                        Recent Transactions
-                      </h2>
-                      <div className="h-80 overflow-y-auto pr-2">
-                        <TestTransactionList transactions={transactions} />
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-              </>
-            )}
-          </div>
+      <div className="p-6">
+        <h1 className="text-4xl font-extrabold text-gray-800 mb-2">
+          Welcome back, {session?.user?.name}
+        </h1>
+        <p className="text-lg mb-6 text-gray-600">
+          Here's a quick overview of your financial activity.
+        </p>
+
+      {needsReauthentication ? (
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto">
+          <p className="text-red-500 text-center font-semibold mb-4">
+            Your account needs to be re-authenticated.
+          </p>
+          <PlaidLinkButton
+            onSuccess={handleSuccess}
+            accessToken={accessToken}
+          />
         </div>
+      ) : !accessToken ? (
+        <div className="flex justify-center">
+          <PlaidLinkButton onSuccess={handleSuccess} />
+        </div>
+      ) : (
+        <>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : transactions ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-white p-6 rounded-lg shadow-lg border ">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                  Monthly Finance Overview
+                </h2>
+                <div className="h-80 items-center justify-center">
+                  <MonthlyChart transactions={transactions} />
+                </div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-lg border">
+                <h2 className="text-2xl font-bold text-gray-800 ">
+                  Recent Transactions
+                </h2>
+                <div className="h-80 overflow-y-auto pr-2">
+                  <RecentTransactionList transactions={transactions}/>
+                  {/* <TestTransactionList transactions={transactions} /> */}
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </>
+      )}
       </div>
-    </DashboardLayout>
   );
 };
 
