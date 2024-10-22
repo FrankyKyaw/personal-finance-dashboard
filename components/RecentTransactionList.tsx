@@ -7,7 +7,6 @@ import { isWithinInterval, subDays, parseISO } from "date-fns";
 const RecentTransactionList: React.FC<{ transactions: Transaction[] }> = ({
   transactions,
 }) => {
-
     const recentTransactions = transactions.filter((transaction) =>
     isWithinInterval(parseISO(transaction.date), {
       start: subDays(new Date(), 1),
